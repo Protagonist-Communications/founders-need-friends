@@ -282,15 +282,7 @@ h2 {
   color: var(--label-accent);
 }
 
-[data-field] [data-optional] {
-  font-weight: 400;
-  letter-spacing: 1px;
-  color: var(--text-tertiary);
-  text-transform: none;
-}
-
-[data-field] input,
-[data-field] textarea {
+[data-field] input {
   font-family: inherit;
   font-size: 15px;
   background: rgba(0, 0, 0, 0.28);
@@ -298,20 +290,39 @@ h2 {
   border-radius: 4px;
   padding: 12px 14px;
   color: var(--text-primary);
-  resize: vertical;
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
-[data-field] input::placeholder,
-[data-field] textarea::placeholder {
+[data-field] input::placeholder {
   color: rgba(255, 255, 255, 0.32);
 }
 
-[data-field] input:focus,
-[data-field] textarea:focus {
+[data-field] input:focus {
   outline: none;
   border-color: var(--accent-rust);
   background: rgba(0, 0, 0, 0.4);
+}
+
+[data-honeypot] {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+[data-component="rsvp-form"] [data-error] {
+  font-size: 14px;
+  color: var(--accent-rust);
+  margin: 0;
+  line-height: 1.5;
+}
+
+[data-component="rsvp-form"] [data-success] {
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.55;
 }
 
 [data-component="rsvp-form"] button {
@@ -327,11 +338,16 @@ h2 {
   padding: 16px 24px;
   margin-top: 8px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 
-[data-component="rsvp-form"] button:hover {
+[data-component="rsvp-form"] button:hover:not(:disabled) {
   background: var(--accent-bright);
+}
+
+[data-component="rsvp-form"] button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 [data-component="rsvp-form"] button:focus-visible {

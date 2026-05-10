@@ -1,14 +1,5 @@
-// Founders Need Friends — landing page
-//
-// This is a SCAFFOLD. The structure, copy, and content are final.
-// What's intentionally left undone:
-//   1. Styling — pull from PROTAGONIST_AI_DESIGN_SYSTEM.md and apply real brand tokens.
-//      This file uses inline placeholder styles that should be replaced by
-//      either CSS modules, Tailwind, or styled components per Protagonist conventions.
-//   2. Form submission — wire up to Formspree (see /* TODO: form */ block below).
-//
-// See /docs/founders-need-friends-landing.md for the full spec, design intent,
-// and form-capture recommendations.
+import RsvpForm from "./RsvpForm";
+import { getSeats } from "./lib/seats";
 
 export const metadata = {
   title: "Founders Need Friends — May 29 at PLUNJ Herriman",
@@ -16,11 +7,14 @@ export const metadata = {
     "A cold plunge, a hot sauna, and seven other founders who get it. Friday morning at PLUNJ Herriman, before the day starts.",
 };
 
-export default function Page() {
+export default async function Page() {
+  const seats = await getSeats();
+  const seatsLabel = seats.isFull ? "Full" : `${seats.open} open`;
+
   return (
     <main>
       {/* Eyebrow tag */}
-      <div data-component="eyebrow">Limited to 10 attendees</div>
+      <div data-component="eyebrow">Limited to 7 spots</div>
 
       {/* H1 */}
       <h1>Founders Need Friends.</h1>
@@ -47,7 +41,7 @@ export default function Page() {
         </div>
         <div>
           <span data-label>Seats</span>
-          <span data-value>7 open</span>
+          <span data-value>{seatsLabel}</span>
         </div>
       </section>
 
@@ -65,80 +59,26 @@ export default function Page() {
         </a>
       </aside>
 
-      {/*
-        TODO: form
-        --------------------------------------------------------------------
-        Wire this form up to Formspree before launch.
-
-        1. Go to https://formspree.io and create a new form.
-        2. Replace YOUR_FORM_ID below with your actual Formspree endpoint.
-        3. Test a submission and confirm it lands in your inbox.
-        4. Optionally enable Formspree's spam filter and auto-reply.
-
-        For a slightly nicer UX, swap the bare <form action> for a fetch()
-        handler that prevents default, submits to Formspree's JSON endpoint,
-        and toggles a success state without a page reload. Keep the bare
-        action as a no-JS fallback.
-      */}
       <section data-component="rsvp-form">
         <h3>RSVP</h3>
-        <p data-subcopy>
-          First seven founders to register get a spot. We&apos;ll email logistics
-          within 24 hours.
-        </p>
-
-        <form
-          action="https://formspree.io/f/YOUR_FORM_ID"
-          method="POST"
-          aria-label="RSVP form"
-        >
-          <div data-field>
-            <label htmlFor="name">Full name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              placeholder="Jane Founder"
-              required
-            />
-          </div>
-
-          <div data-field>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="jane@company.com"
-              required
-            />
-          </div>
-
-          <div data-field>
-            <label htmlFor="company">Company</label>
-            <input
-              type="text"
-              id="company"
-              name="company"
-              placeholder="What you're building"
-              required
-            />
-          </div>
-
-          <div data-field>
-            <label htmlFor="why">
-              What&apos;s on your mind these days? <span data-optional>(optional)</span>
-            </label>
-            <textarea
-              id="why"
-              name="why"
-              rows={3}
-              placeholder="One sentence is fine. Helps us seat the room well."
-            />
-          </div>
-
-          <button type="submit">Reserve my spot</button>
-        </form>
+        {seats.isFull ? (
+          <p data-subcopy>
+            We&apos;re full. If you want to land on the waitlist in case
+            someone cancels, email{" "}
+            <a href="mailto:colds@protagonistcomms.co">
+              colds@protagonistcomms.co
+            </a>
+            .
+          </p>
+        ) : (
+          <>
+            <p data-subcopy>
+              First seven founders to register get a spot. We&apos;ll email
+              logistics within 24 hours.
+            </p>
+            <RsvpForm />
+          </>
+        )}
       </section>
 
       {/* Footer */}
