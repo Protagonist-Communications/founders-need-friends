@@ -4,7 +4,13 @@ import path from "node:path";
 import { Resend } from "resend";
 import { getSeats, revalidateSeats } from "@/app/lib/seats";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let resendClient: Resend | null = null;
+function getResend(): Resend {
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+}
 const FROM = process.env.RESEND_FROM ?? "onboarding@resend.dev";
 const REPLY_TO = process.env.RESEND_REPLY_TO;
 const NOTIFY_TO = process.env.RSVP_NOTIFY_TO;
@@ -14,9 +20,15 @@ const MAP_URL =
   "https://www.google.com/maps/search/?api=1&query=5139+Miller+Crossing+Dr+Unit+C+Herriman+UT+84096";
 
 const LOGO_CID = "fnf-wordmark";
-const LOGO_BUFFER = readFileSync(
-  path.join(process.cwd(), "public", "logos", "founders-need-friends-wordmark.png")
-);
+let logoBufferCache: Buffer | null = null;
+function getLogoBuffer(): Buffer {
+  if (!logoBufferCache) {
+    logoBufferCache = readFileSync(
+      path.join(process.cwd(), "public", "logos", "founders-need-friends-wordmark.png")
+    );
+  }
+  return logoBufferCache;
+}
 
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) =>
@@ -66,7 +78,7 @@ export async function POST(req: Request) {
   const timestamp = new Date().toISOString();
 
   const [confSettled, notifSettled] = await Promise.allSettled([
-    resend.emails.send({
+    getResend().emails.send({
       from: FROM,
       to: e,
       subject: "You're in — Founders Need Friends, Friday May 29",
@@ -76,13 +88,13 @@ export async function POST(req: Request) {
       attachments: [
         {
           filename: "founders-need-friends-wordmark.png",
-          content: LOGO_BUFFER,
+          content: getLogoBuffer(),
           contentType: "image/png",
           contentId: LOGO_CID,
         },
       ],
     }),
-    resend.emails.send({
+    getResend().emails.send({
       from: FROM,
       to: NOTIFY_TO,
       subject: `New RSVP: ${fullName}`,
@@ -111,7 +123,7 @@ export async function POST(req: Request) {
 
   if (AUDIENCE_ID) {
     try {
-      const contactResult = await resend.contacts.create({
+      const contactResult = await getResend().contacts.create({
         audienceId: AUDIENCE_ID,
         email: e,
         firstName: f,
